@@ -7,11 +7,11 @@ window.addEventListener('load', function(){
     if (p) p.value = "";
     if (c) c.value = "";
 });
-//tạo tại khoản admin sẵn
+//TÀI KHOẢN ADMIN CÓ SẴN
 function tkAdminCoSan(){
     let accounts = getData("accounts");
-    let adminExists = accounts.some(acc => acc.username === "admin");
-    if (!adminExists){
+    let tkadmin = accounts.some(acc => acc.username === "admin");
+    if (!tkadmin){
         accounts.push({
             username: "admin",
             password: "1",
@@ -97,7 +97,7 @@ function registerAdmin(){
     setTimeout(function(){regSuccess.style.display = "none";}, 1000);
     hienthidanhsachtaikhoan()
 }
-//Danh sách tài khoản
+//DANH SÁCH TÀI KHOẢN
 function hienthidanhsachtaikhoan(){
     let accounts = getData("accounts");
     let NguoiDung = localStorage.getItem("NguoiDung");
@@ -137,14 +137,14 @@ function logout(){
     localStorage.removeItem("NguoiDung");
     location.href = "dangnhap.html";
 }
-//Tiêu đề trang user
+//TIÊU ĐỀ TRANG
 let trangHienTai = window.location.pathname.split("/").pop();
 if (!(trangHienTai === "dangnhap.html" || trangHienTai ==="dangky.html")){
     let xinchao = localStorage.getItem("NguoiDung");
     if (!xinchao) location.href="dangnhap.html";
     document.querySelector(".xinchao").innerText = "Xin chào, " + xinchao +"!";
 };
-//Nhập đầy đủ nội dung
+//NHẬP ĐẦY ĐỦ THÔNG TIN
 function showError(input, tb) {
     let inp = document.getElementById(input);
     inp.value = tb;
@@ -194,6 +194,7 @@ function dangbai(){
     saveData("baiviet", baiviet);
     hienthibai();
     lammoi();
+
 }
 function hienthibai(danhsach = null){
     let NguoiDung = localStorage.getItem("NguoiDung");
@@ -218,11 +219,41 @@ function hienthibai(danhsach = null){
                     <div style="margin-left:5px" id="soluongbinhluan_${index}">${element.binhluan.length}</div>🗨️
                 </div>
                 <button onclick="chitiet(${index})" class="xemchitiet" >Xem chi tiết</button>
-                ${element.NguoiDung === NguoiDung ? `<button onclick="xoabaiviet(${index})" class="xoabai">Xóa</button>` : ""}
+                ${element.NguoiDung === NguoiDung ? `<button onclick="xoabaiviet(${index})" class="xoabai">Xóa</button>
+                <button onclick="suaBaiViet(${index})" class="suabai">Sửa</button>` : ""}
             </div>`}
     });
     document.getElementById("feed").innerHTML = html;
 }
+//SỬA BÀI VIẾT
+function suaBaiViet(index){
+    let baiviet = getData("baiviet");
+    let bv = baiviet[index];
+    document.getElementById("tieude").value = bv.tieude;
+    document.getElementById("chude").value = bv.chude;
+    document.getElementById("mota").value = bv.mota;
+    document.getElementById("noidungbaiviet").value = bv.noidung;
+    document.querySelector(".status").value = bv.status;
+    let btnDangBai = document.querySelector(".dangbai");
+    btnDangBai.textContent = "Cập nhật";    
+    btnDangBai.onclick = function(){
+        bv.tieude = document.getElementById("tieude").value;
+        bv.chude = document.getElementById("chude").value;
+        bv.mota = document.getElementById("mota").value;
+        bv.noidung = document.getElementById("noidungbaiviet").value;
+        bv.status = document.querySelector(".status").value;
+        saveData("baiviet", baiviet);
+        hienthibai();
+        locChuDe();
+        lammoi();
+
+        btnDangBai.textContent = "Đăng bài";
+        btnDangBai.onclick = dangbai;
+        showError();
+    }
+}
+
+//Nội dung chi tiết
 function chitiet(index){
     let NguoiDung = localStorage.getItem("NguoiDung");
     let baiviet = getData("baiviet");
@@ -273,6 +304,7 @@ function chitiet(index){
     document.getElementById("postPopup").style.display = "block";
     document.getElementById("overlay").style.display = "block";
 }
+//Bình luận
 function guibinhluan(index){
     let text = document.getElementById(`inputbinhluan_${index}`).value.trim();
     if (text === "") return;
@@ -287,6 +319,7 @@ function guibinhluan(index){
     chitiet(index);
     document.getElementById(`soluongbinhluan_${index}`).innerText = baiviet[index].binhluan.length;
 }
+//THÍCH
 function tymbaiviet(index){
     let NguoiDung = localStorage.getItem("NguoiDung");
     let baiviet = getData("baiviet");
@@ -308,33 +341,35 @@ function tymbaiviet(index){
     }
     saveData("baiviet", baiviet);
 }
+//ĐÓNG NỘI DUNG CHI TIẾT
 function dongchitiet(){
     document.getElementById("postPopup").style.display = "none";
     document.getElementById("popup").innerHTML = "";
     document.getElementById("overlay").style.display = "none";
 }
-//Làm mới
+//LÀM MỚI
 function lammoi(){
     document.getElementById("tieude").value = "";
     document.getElementById("chude").value = "";
     document.getElementById("mota").value = "";
     document.getElementById("noidungbaiviet").value = "";
 }
-//Xóa bài viết
+//----xÓA----
+//XÓA BÀI VIẾT
 function xoabaiviet(index){
     let baiviet = getData("baiviet");
     baiviet.splice(index, 1);
     saveData("baiviet", baiviet);
     hienthibai();
 }
-//Xóa tài khoản
+//Xóa TÀI KHOẢN
 function xoataikhoan(index){
     let accounts = getData("accounts")
     accounts.splice(index, 1);
     saveData("accounts", accounts);
     hienthidanhsachtaikhoan();
 }
-//Xóa bình luận
+//XÓA BÌNH LUẬN
 function xoabinhluan(index, i){
     let baiviet = getData("baiviet")
     let bv = baiviet[index];
@@ -342,7 +377,7 @@ function xoabinhluan(index, i){
     saveData("baiviet", baiviet)
     chitiet(index, i);
 }
-//Thống kê
+//THỐNG KÊ
 function thongkebaivietcuatoi(){
     let NguoiDung = localStorage.getItem("NguoiDung");
     let baiviet = getData("baiviet");
@@ -371,7 +406,7 @@ function thongkebaivietcuatoi(){
     document.getElementById("thongkebinhluan").innerText = soBinhLuan;
     document.getElementById("thongkechude").innerText = soChuDe;
 }
-function thongkeadmin() {
+function thongkeadmin(){
     let accounts = getData("accounts");
     let baiviet = getData("baiviet");
     let tongUser = 0;
@@ -393,7 +428,7 @@ function thongkeadmin() {
     document.getElementById("tongluotthich").innerText = tongTym;
     document.getElementById("tongbinhluan").innerText = tongBinhLuan;
 }
-//Lọc chủ đề
+//LỌC CHỦ ĐỀ
 function locChuDe(){
     let baiviet = getData("baiviet");
     let dsChuDe = [...new Set(baiviet.map(bv => bv.chude))];
@@ -413,7 +448,7 @@ function locBaiTheoChuDe(){
         : baiviet.filter(bv => bv.chude === chude);
     hienthibai(ketqua);
 }
-//Tìm kiếm theo tiêu đề
+//TÌM KIẾM THEO TIÊU ĐỀ
 function timkiemTieuDe(){
     let baiviet = getData("baiviet");
     let tieude = document.getElementById("timkiemtieude").value.toLowerCase();
